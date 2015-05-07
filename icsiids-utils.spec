@@ -41,3 +41,4 @@ make install DESTDIR=%{buildroot}
 %changelog
 * Thu May  7 2015 David Johnson <davidj@ICSI.Berkeley.EDU>
 - Initial package.
+
