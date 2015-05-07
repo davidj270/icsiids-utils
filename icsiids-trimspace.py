@@ -4,16 +4,20 @@
 # It takes a file glob and a size limit and removes the oldest files that
 # match the glob such that the total size of the fiels does not exceed
 # the file limit.  If there are no globs specified on the command line,
-# read a list of files from stdin.
+# it reads a list of files from stdin.
 
 import sys
 import os
-import glob
 import os.path
+import glob
 import optparse
 import re
+import time
+
 prog="icsiids-trimspace"
 version="%s v0.1" % prog
+
+dateformat = "%Y-%m-%dT%T"
 
 parser = optparse.OptionParser(prog=prog, version=version)
 
@@ -67,10 +71,27 @@ else:
     for g in args[1:]:
         files += glob.glob(g)
 
+if len(files)==0:
+    error("no files found")
+
+
+fstats = [ ]
+for f in files:
+    if os.path.isdir(f):
+        error("%s is a directory" % f)
+    if os.path.islink(f):
+        error("%s is a soft link" % f)
+    mtime = os.path.getmtime(f)
+    size = os.path.getsize(f)
+    fstats.append((f, mtime, size))
+
+
+
 if (options.verbose):
     sys.stdout.write("Files:\n")
-    for f in files:
-        sys.stdout.write("  %s\n" % f)
-
+    for (f, mtime, size) in fstats:
+        mtimestr = time.strftime(dateformat, time.localtime(mtime))
+        sys.stdout.write("  %s: mtime=%s, %s bytes\n" % (f, mtimestr, size))
+    
 
 sys.exit(0)
