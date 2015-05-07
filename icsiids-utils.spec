@@ -12,16 +12,16 @@ Group: Applications/Internet
 Packager: David Johnson
 Vendor: ICSI, http://www.ICSI.Berkeley.EDU
 
-Source: %{name}-%{real_version}.tgz
+Source: %{name}-%{version}.tgz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
-BuildRequires:
+Requires: Python
 
 %description
 Utilities useful in working with IDS systems
 
 %prep
-%setup -n %{name}-%{real_version}
+%setup -n %{name}-%{version}
 
 %build
 ./configure --prefix=%{_prefix}
@@ -37,7 +37,6 @@ make install DESTDIR=%{buildroot}
 %defattr(-, root, root, 0755)
 %doc README.md
 %{_bindir}/*
-%config(noreplace) %{_sysconfdir}/timemachine.cfg
 
 %changelog
 * Thu May  7 2015 David Johnson <davidj@ICSI.Berkeley.EDU>
