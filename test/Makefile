@@ -10,7 +10,7 @@ a1: always
 
 a2: always
 	dd if=/dev/zero of=$@ bs=1024 count=2048
-	touch -t 201505061019 $@
+	touch -t 201505061016 $@
 
 a3: always
 	dd if=/dev/zero of=$@ bs=1024 count=3096
