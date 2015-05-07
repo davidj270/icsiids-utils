@@ -4,7 +4,7 @@
 # It takes a file glob and a size limit and removes the oldest files that
 # match the glob such that the total size of the fiels does not exceed
 # the file limit.  If there are no globs specified on the command line,
-# it reads a list of files from stdin.
+# it reads a list of files from stdin (which are not globbed)
 
 import sys
 import os
