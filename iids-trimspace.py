@@ -15,7 +15,7 @@ import re
 import time
 from operator import attrgetter
 
-prog="icsiids-trimspace"
+prog="iids-trimspace"
 version="%s v0.1" % prog
 
 dateformat = "%Y-%m-%dT%T"
