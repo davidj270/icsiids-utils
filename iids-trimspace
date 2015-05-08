@@ -36,6 +36,16 @@ def error(string):
     sys.stdout.write("%s: ERROR - %s\n" % (prog, string))
     sys.exit(1)
 
+def unlink(f):
+    rc = True
+    try:
+        os.unlink(f)
+    except Exception as e:
+        sys.stderr.write("WARNING - failed to erase \"%s\" - %s\n"
+                         % (f, e.strerror))
+        rc = False
+    return rc
+
 if not options.limit:
     error("need to specify --limit option")
 m = re.match(r'^(\d+)([bkmgt]?)$', options.limit)
@@ -56,7 +66,7 @@ if (options.verbose):
     sys.stdout.write("%s\n" % version)
     sys.stdout.write("limit: %i bytes\n" % limit)
 
-if (limit<1024*1024 and not options.force):
+if (limit<1024*1024):
     error("limit must by >=1MB")
 
 # The list of files we are operating on
@@ -114,37 +124,48 @@ total_bytes = 0
 erase_count = 0
 erase_size = 0
 if options.verbose:
-    sys.stdout.write("To erase:\n")
+    sys.stdout.write("Erasing...\n")
 for fstat in fstats:
         (f, mtime, size) = fstat.contents()
         total_bytes += size
         if total_bytes > limit:
             # Here if we have a file to erase
-            erase_count+=1
-            erase_size+=size
             if not options.noop:
                 # Here if we are erasing the file
                 if not options.force:
-                    reply = input("Erase %s? (y/n)\n" % f)
+                    reply = raw_input("Erase %s? (y/n) " % f)
                     if re.match(r'^[yY]', reply):
-                        os.unlink(f)
-                        if options.verbose:
-                            sys.stdout.write("Erased %s\n" % f)
+                        if unlink(f):
+                            erase_count+=1
+                            erase_size+=size
+                            if options.verbose:
+                                sys.stdout.write("Erased %s\n" % f)
+                        else:
+                            if options.verbose:
+                                sys.stdout.write("Failed to erase %s\n" % f)
+                                
                     else:
                         if options.verbose:
                             sys.stdout.write("Didn't erase %s\n" % f)
                 else:
-                    os.unlink(f)
-                    if options.verbose:
-                        sys.stdout.write("Erased %s\n" % f)
+                    if unlink(f):
+                        erase_count+=1
+                        erase_size+=size
+                        if options.verbose:
+                            sys.stdout.write("Erased %s\n" % f)
+                    else:
+                        if options.verbose:
+                            sys.stdout.write("Failed to erase %s\n" % f)
             else:
                 # Here if it is a noop
-                sys.stdout.write("Erase target %s\n" % f)
-            if options.verbose:
-                sys.stdout.write("  %s, cumulative %i bytes\n"
-                                 % (f, total_bytes))
+                erase_count+=1
+                erase_size+=size
+                sys.stdout.write("Skipping erase of %s\n" % f)
 
 if options.verbose:
-    sys.stdout.write("Erased %i files, %i bytes\n" % (erase_count, erase_sizes))
+    if options.noop:
+        sys.stdout.write("Should have erased %i files, %i bytes\n" % (erase_count, erase_size))
+    else:
+        sys.stdout.write("Erased %i files, %i bytes\n" % (erase_count, erase_size))
 
 sys.exit(0)
