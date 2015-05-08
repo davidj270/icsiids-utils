@@ -1,0 +1,2 @@
+ - pull spec file version number from configure
+ - put version in python scripts automatically
