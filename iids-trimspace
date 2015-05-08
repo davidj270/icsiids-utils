@@ -112,6 +112,7 @@ if (options.verbose):
 # Work out what files are over the size limit
 total_bytes = 0
 erase_count = 0
+erase_size = 0
 if options.verbose:
     sys.stdout.write("To erase:\n")
 for fstat in fstats:
@@ -120,15 +121,30 @@ for fstat in fstats:
         if total_bytes > limit:
             # Here if we have a file to erase
             erase_count+=1
+            erase_size+=size
             if not options.noop:
-                # Actually doing the erase
-                sys.stdout.write("Erasing %s\n" % f)
+                # Here if we are erasing the file
+                if not options.force:
+                    reply = input("Erase %s? (y/n)\n" % f)
+                    if re.match(r'^[yY]', reply):
+                        os.unlink(f)
+                        if options.verbose:
+                            sys.stdout.write("Erased %s\n" % f)
+                    else:
+                        if options.verbose:
+                            sys.stdout.write("Didn't erase %s\n" % f)
+                else:
+                    os.unlink(f)
+                    if options.verbose:
+                        sys.stdout.write("Erased %s\n" % f)
+            else:
+                # Here if it is a noop
+                sys.stdout.write("Erase target %s\n" % f)
             if options.verbose:
                 sys.stdout.write("  %s, cumulative %i bytes\n"
                                  % (f, total_bytes))
 
 if options.verbose:
-    sys.stdout.write("Erased %i files\n" % erase_count)
-    
+    sys.stdout.write("Erased %i files, %i bytes\n" % (erase_count, erase_sizes))
 
 sys.exit(0)
