@@ -3,7 +3,7 @@
 
 Summary: ICSI utilities for IDS systems
 Name: icsiids-utils
-Version: 0.1.0
+Version: 0.1.1
 Release: 1.ICSI
 License: distributable 
 Group: Applications/Internet
