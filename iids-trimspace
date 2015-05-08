@@ -24,9 +24,11 @@ parser = optparse.OptionParser(prog=prog, version=version)
 
 parser.add_option("-s", "--limit", action="store", dest="limit", help="size limit in bytes, allowed suffices {,k,m,g,t}")
 parser.add_option("-f", "--force", action="store_true", default=False,
-                  dest="force", help="ignore safety features")
+                  dest="force", help="override file delete query")
 parser.add_option("-v", "--verbose", action="store_true", default=False,
-                  dest="verbose", help="produce diagnostic output")
+                  dest="verbose", help="output status messages")
+parser.add_option("-d", "--debug", action="store_true", default=False,
+                  dest="debug", help="produce debug output")
 parser.add_option("-n", "--noop", action="store_true", default=False,
                   dest="noop", help="do not actually delete files")
 
@@ -62,7 +64,7 @@ elif unit=="g":
 elif unit=="t":
     limit *= (1024*1024*1024*1024)
 
-if (options.verbose):
+if (options.debug):
     sys.stdout.write("%s\n" % version)
     sys.stdout.write("limit: %i bytes\n" % limit)
 
@@ -112,7 +114,7 @@ for f in files:
 fstats.sort(key=attrgetter('mtime'), reverse=True)
 
 # Show what we're doing if appropriate
-if (options.verbose):
+if (options.debug):
     sys.stdout.write("Files:\n")
     for fstat in fstats:
         (f, mtime, size) = fstat.contents()
@@ -123,7 +125,7 @@ if (options.verbose):
 total_bytes = 0
 erase_count = 0
 erase_size = 0
-if options.verbose:
+if options.debug:
     sys.stdout.write("Erasing...\n")
 for fstat in fstats:
         (f, mtime, size) = fstat.contents()
@@ -138,10 +140,10 @@ for fstat in fstats:
                         if unlink(f):
                             erase_count+=1
                             erase_size+=size
-                            if options.verbose:
+                            if options.verbose or options.debug:
                                 sys.stdout.write("Erased %s\n" % f)
                         else:
-                            if options.verbose:
+                            if options.debug:
                                 sys.stdout.write("Failed to erase %s\n" % f)
                                 
                     else:
@@ -151,21 +153,22 @@ for fstat in fstats:
                     if unlink(f):
                         erase_count+=1
                         erase_size+=size
-                        if options.verbose:
+                        if options.verbose or options.debug:
                             sys.stdout.write("Erased %s\n" % f)
                     else:
-                        if options.verbose:
+                        if options.debug:
                             sys.stdout.write("Failed to erase %s\n" % f)
             else:
                 # Here if it is a noop
                 erase_count+=1
                 erase_size+=size
-                sys.stdout.write("Skipping erase of %s\n" % f)
+                if options.verbose or options.debug:
+                    sys.stdout.write("Skipping erase of %s\n" % f)
 
-if options.verbose:
+if options.verbose or options.debug:
     if options.noop:
-        sys.stdout.write("Should have erased %i files, %i bytes\n" % (erase_count, erase_size))
+        sys.stdout.write("Finished: skipped erasing %i files, %i bytes, limit %i bytes\n" % (erase_count, erase_size, limit))
     else:
-        sys.stdout.write("Erased %i files, %i bytes\n" % (erase_count, erase_size))
+        sys.stdout.write("Finished: erased %i files, %i bytes, limit %i bytes\n" % (erase_count, erase_size, limit))
 
 sys.exit(0)
