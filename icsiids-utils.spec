@@ -3,7 +3,7 @@
 
 Summary: ICSI utilities for IDS systems
 Name: icsiids-utils
-Version: 0.1.1
+Version: 0.1.2
 Release: 1.ICSI
 License: distributable 
 Group: Applications/Internet
@@ -15,7 +15,7 @@ Vendor: ICSI, http://www.ICSI.Berkeley.EDU
 Source: %{name}-%{version}.tgz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
-Requires: Python
+Requires: python
 
 %description
 Utilities useful in working with IDS systems
