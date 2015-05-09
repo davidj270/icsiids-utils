@@ -1,2 +1,5 @@
- - pull spec file version number from configure
- - put version in python scripts automatically
+## TODO file for icsiids-utils
+
+- make verbose option only produce output when something happened
+- pull spec file version number from configure
+- put version in python scripts automatically
